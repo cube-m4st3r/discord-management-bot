@@ -99,7 +99,8 @@ class Messages(commands.Cog):
             host=os.getenv("DB.HOST"),
             user=os.getenv("DB.USER"),
             password=os.getenv("DB.PW"),
-            database=os.getenv("DB")
+            database=os.getenv("DB"),
+            port=os.getenv("DB.PORT")
         )
 
         mycursor = mydb.cursor()
@@ -116,9 +117,9 @@ class Messages(commands.Cog):
     async def music(self, interaction: discord.Interaction):
         await interaction.response.send_message(view=MusicView(self.bot))
 
-    @app_commands.command(name="selection")
-    async def selection(self, interaction: discord.Interaction):
-        await interaction.response.send_message(view=SelectionView())
+    #@app_commands.command(name="selection")
+    #async def selection(self, interaction: discord.Interaction):
+    #    await interaction.response.send_message(view=SelectionView())
 
 async def setup(bot):
     await bot.add_cog(Messages(bot))
