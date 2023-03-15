@@ -19,13 +19,11 @@ class RegisterMenuButton(discord.ui.Button):
             await interaction.response.defer()
             await interaction.message.edit(content="Prozess abgebrochen!", delete_after=5)
 
-
 class RegisterMenuView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(RegisterMenuButton("Registriere dich hier!", discord.ButtonStyle.primary, 0))
         self.add_item(RegisterMenuButton("Abbrechen", discord.ButtonStyle.red, 1))
-
 
 class RegisterUserModal(discord.ui.Modal):
 
@@ -65,7 +63,6 @@ class RegisterUserModal(discord.ui.Modal):
         await interaction.response.send_message(
             f'Du wurdest erfolgreich als: "{self.first_name.value} {self.last_name.value}",  registriert!',
             ephemeral=True)
-
 
 class SelectLessonMenu(discord.ui.Select):
     def __init__(self, grade: int):
@@ -198,17 +195,40 @@ class SelectTeacherView(discord.ui.View):
         super().__init__(timeout=None)
         self.add_item(SelectTeacherMenu(lesson_name))
 
-
 class SelectLessonView(discord.ui.View):
     def __init__(self, grade: int):
         super().__init__(timeout=None)
         self.add_item(SelectLessonMenu(grade))
 
-
 class grade_overview(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+
+    @app_commands.command(name="registrieren", description="Registriere dich hiermit!")
+    @app_commands.checks.has_role("MET 11")
+    async def register_student(self, interaction: discord.Interaction):
+
+        mydb = mysql.connector.connect(
+            host=os.getenv("DB.HOST"),
+            user=os.getenv("DB.USER"),
+            password=os.getenv("DB.PW"),
+            database=os.getenv("DB"),
+            port=os.getenv("DB.PORT")
+        )
+
+        check_user = mydb.cursor()
+        check_user_sql = "SELECT iddiscord_user FROM discord_user WHERE iddiscord_user = %s"
+        check_user.execute(check_user_sql, (str(interaction.user.id),))
+
+        if not check_user:
+            await interaction.response.send_message(content="*Diese Nachricht wird in 15 Sekunden gelöscht*",
+                                                    view=RegisterMenuView(), ephemeral=True, delete_after=15)
+        else:
+            await interaction.response.send_message(content="Du bist bereits registriert!", ephemeral=True, delete_after=5)
+
+
+
 
     @app_commands.command(name="note_eintragen", description="Note eintragen")
     @app_commands.checks.has_role("MET 11")
