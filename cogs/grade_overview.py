@@ -135,6 +135,8 @@ class SelectLessonMenu(discord.ui.Select):
 
                     mydb.commit()
 
+                    await interaction.response.send_message(f"Die Note: {str(self.grade)} wurde in {a} eingetragen!", delete_after=5, ephemeral=True)
+
 class SelectTeacherMenu(discord.ui.Select):
     def __init__(self, lesson_name: str):
         super().__init__(placeholder="Wähle einen Lehrer aus.")
@@ -234,7 +236,7 @@ class grade_overview(commands.Cog):
                     "Das System konnte dich nicht finden, bist du nicht registriert? \n Wenn du dich registrieren möchtest, dann klicke auf den Button!",
                     view=RegisterMenuView(), ephemeral=True, delete_after=15)
             else:
-                await interaction.response.send_message(view=SelectLessonView(note), ephemeral=True)
+                await interaction.response.send_message(content="Diese Nachricht wird in 15 Sekunden gelöscht!", view=SelectLessonView(note), ephemeral=True, delete_after=15)
 
         else:
             await interaction.response.send_message("Bitte gebe eine richtige Note an.", ephemeral=True, delete_after=3)
@@ -339,7 +341,7 @@ class grade_overview(commands.Cog):
 
     @app_commands.command(name="lehrer_eintragen", description="Lehrer eintragen")
     @app_commands.checks.has_role("Leiter")
-    async def insert_teacher(self, interaction: discord.Interaction, form_of_address: str, name: str):
+    async def insert_teacher(self, form_of_address: str, name: str):
 
         mydb = mysql.connector.connect(
             host=os.getenv("DB.HOST"),
