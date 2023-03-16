@@ -24,6 +24,6 @@ services:
       - 5000:3306
     volumes:
       - mysql_data_container:/data/db
-      - /database/test_database.sql:/docker-entrypoint-initdb.d/test_database.sql
+      - /database/test_database.sql:/docker-entrypoint-initdb.d/test_database.sql #FILE SHARING ISSUE RESOLVE THIS
 volumes:
   mysql_data_container:
