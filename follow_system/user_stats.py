@@ -35,6 +35,9 @@ class setup_user_stats(commands.Cog):
 
         student_name = list(chain(*select_student_name_result))
 
+        check_author_is_student = mydb.cursor()
+        check_author_is_student_sql = "SELECT SELECT"
+
         user_stats_embed.title = str(f"{student_name[0]} {student_name[1]}")
 
         await interaction.response.send_message(embed=user_stats_embed)
