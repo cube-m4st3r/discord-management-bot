@@ -1,11 +1,11 @@
 FROM python:3.8-slim-buster
 
 WORKDIR /
-ENV TOKEN=YOUR_TOKEN
+#ENV TOKEN=YOUR_TOKEN
 #Insert IP for external MySQL Server
-ENV DB.HOST=localhost
-ENV DB.PW='YOUR_DB_PASSWORD'
-ENV DB='YOUR_DATABASE'
+#ENV DB.HOST=localhost
+#ENV DB.PW='YOUR_DB_PASSWORD'
+#ENV DB='YOUR_DATABASE'
 #ENV DB.PORT='YOUR_PORT'
 
 COPY requirements.txt requirements.txt
