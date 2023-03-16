@@ -21,7 +21,7 @@ class MusicButton(discord.ui.Button):
             voice_client = await voice_channel.connect()
 
         if self.mode == 0:
-            voice_client.play(discord.FFmpegPCMAudio(source="./Music/MusicFile.mp3", executable="ffmpeg.exe"))
+            voice_client.play(discord.FFmpegPCMAudio(source="./music/MusicFile.mp3"))
         elif self.mode == 1:
             voice_client.pause()
         elif self.mode == 2:
