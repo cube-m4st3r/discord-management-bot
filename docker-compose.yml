@@ -1,0 +1,29 @@
+# WORK IN PROGRESS/TEST AREA
+# WON'T WORK/DON'T USE
+version: "1.0"
+services:
+  discord_bot:
+    container_name: "bot"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: settings.env
+    entrypoint: ['python', 'main.py']
+    depends_on:
+      - mysql
+
+  mysql:
+    container_name: "db_mysql"
+    image: linuxserver/mysql:latest
+    command: --init-file database/test_database.sql
+    environment:
+      MYSQL_DB_ROOT_USERNAME: root
+      MYSQL_DB_ROOT_PASSWORD: root
+      MYSQL_DB_DATABASE: TEST_MET11 #change this
+    ports:
+      - 5000:3306
+    volumes:
+      - mysql_data_container:/data/db
+      - /database/test_database.sql:/docker-entrypoint-initdb.d/test_database.sql
+volumes:
+  mysql_data_container:
