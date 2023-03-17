@@ -7,6 +7,21 @@ import os
 
 from itertools import chain
 
+def connect_to_db():
+
+    mydb = mysql.connector.connect(
+        host=os.getenv("DB.HOST"),
+        user=os.getenv("DB.USER"),
+        password=os.getenv("DB.PW"),
+        database=os.getenv("DB"),
+        port=os.getenv("DB.PORT")
+    )
+
+    return mydb
+
+def check_privacy(userid: str):
+    print("test")
+
 class setup_user_stats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -18,16 +33,10 @@ class setup_user_stats(commands.Cog):
         user_stats_embed.color = discord.Color.gold()
         user_stats_embed.set_footer(text=f"requested by: {interaction.user.name}")
 
-        mydb = mysql.connector.connect(
-            host=os.getenv("DB.HOST"),
-            user=os.getenv("DB.USER"),
-            password=os.getenv("DB.PW"),
-            database=os.getenv("DB"),
-            port=os.getenv("DB.PORT")
-        )
+        connector = connect_to_db()
 
         if member:
-            select_student_name = mydb.cursor()
+            select_student_name = connector.cursor()
 
             select_student_name_sql = "SELECT first_name, last_name FROM student s \
                                    JOIN discord_user d ON s.discord_user_iddiscord_user = d.iddiscord_user WHERE d.iddiscord_user = %s"
@@ -40,7 +49,7 @@ class setup_user_stats(commands.Cog):
             user_stats_embed.title = str(f"{student_name[0]} {student_name[1]}")
 
         else:
-            select_student_name = mydb.cursor()
+            select_student_name = connector.cursor()
 
             select_student_name_sql = "SELECT first_name, last_name FROM student s \
                                                JOIN discord_user d ON s.discord_user_iddiscord_user = d.iddiscord_user WHERE d.iddiscord_user = %s"
