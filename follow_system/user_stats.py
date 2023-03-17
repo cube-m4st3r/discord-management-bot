@@ -19,8 +19,17 @@ def connect_to_db():
 
     return mydb
 
+def select_studentid(userid: str):
+    connector = connect_to_db()
+
+    selectid = connector.cursor()
+    selectid_sql = "SELECT "
+
 def check_privacy(userid: str):
-    print("test")
+    connector = connect_to_db()
+
+    cursor = connector.cursor()
+    cursor_sql = "SELECT "
 
 class setup_user_stats(commands.Cog):
     def __init__(self, bot):
