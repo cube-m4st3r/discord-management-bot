@@ -12,7 +12,7 @@ class setup_user_stats(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="user_stats", description="Statistiken eines Nutzers anzeigen")
-    async def user_stats(self, interaction: discord.Interaction, member: discord.Member):
+    async def user_stats(self, interaction: discord.Interaction, member: discord.Member=None):
 
         user_stats_embed = discord.Embed()
         user_stats_embed.color = discord.Color.gold()
@@ -22,23 +22,35 @@ class setup_user_stats(commands.Cog):
             host=os.getenv("DB.HOST"),
             user=os.getenv("DB.USER"),
             password=os.getenv("DB.PW"),
-            database=os.getenv("DB")
+            database=os.getenv("DB"),
+            port=os.getenv("DB.PORT")
         )
 
-        select_student_name = mydb.cursor()
+        if member:
+            select_student_name = mydb.cursor()
 
-        select_student_name_sql = "SELECT first_name, last_name FROM student s \
-                        JOIN discord_user d ON s.discord_user_iddiscord_user = d.iddiscord_user WHERE d.iddiscord_user = %s"
-        select_student_name.execute(select_student_name_sql, (str(member.id),))
+            select_student_name_sql = "SELECT first_name, last_name FROM student s \
+                                   JOIN discord_user d ON s.discord_user_iddiscord_user = d.iddiscord_user WHERE d.iddiscord_user = %s"
+            select_student_name.execute(select_student_name_sql, (str(member.id),))
 
-        select_student_name_result = select_student_name.fetchall()
+            select_student_name_result = select_student_name.fetchall()
 
-        student_name = list(chain(*select_student_name_result))
+            student_name = list(chain(*select_student_name_result))
 
-        check_author_is_student = mydb.cursor()
-        check_author_is_student_sql = "SELECT SELECT"
+            user_stats_embed.title = str(f"{student_name[0]} {student_name[1]}")
 
-        user_stats_embed.title = str(f"{student_name[0]} {student_name[1]}")
+        else:
+            select_student_name = mydb.cursor()
+
+            select_student_name_sql = "SELECT first_name, last_name FROM student s \
+                                               JOIN discord_user d ON s.discord_user_iddiscord_user = d.iddiscord_user WHERE d.iddiscord_user = %s"
+            select_student_name.execute(select_student_name_sql, (str(interaction.user.id),))
+
+            select_student_name_result = select_student_name.fetchall()
+
+            student_name = list(chain(*select_student_name_result))
+
+            user_stats_embed.title = str(f"{student_name[0]} {student_name[1]}")
 
         await interaction.response.send_message(embed=user_stats_embed)
 
