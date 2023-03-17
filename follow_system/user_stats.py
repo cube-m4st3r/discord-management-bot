@@ -23,7 +23,10 @@ def select_studentid(userid: str):
     connector = connect_to_db()
 
     selectid = connector.cursor()
-    selectid_sql = "SELECT "
+    selectid_sql = "SELECT idstudent FROM student WHERE discord_user_iddiscord_user = %s"
+    selectid.execute(selectid_sql, (userid,))
+
+    return str(selectid.fetchone()).strip("(,)")
 
 def check_privacy(userid: str):
     connector = connect_to_db()
@@ -57,6 +60,8 @@ class setup_user_stats(commands.Cog):
 
             user_stats_embed.title = str(f"{student_name[0]} {student_name[1]}")
 
+
+
         else:
             select_student_name = connector.cursor()
 
@@ -69,6 +74,8 @@ class setup_user_stats(commands.Cog):
             student_name = list(chain(*select_student_name_result))
 
             user_stats_embed.title = str(f"{student_name[0]} {student_name[1]}")
+
+            print(select_studentid(str(interaction.user.id)))
 
         await interaction.response.send_message(embed=user_stats_embed)
 
