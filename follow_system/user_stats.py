@@ -32,7 +32,7 @@ def check_privacy(userid: str):
     connector = connect_to_db()
 
     cursor = connector.cursor()
-    cursor_sql = "SELECT private FROM"
+    cursor_sql = "SELECT private FROM student_has_lesson"
 
 class setup_user_stats(commands.Cog):
     def __init__(self, bot):
