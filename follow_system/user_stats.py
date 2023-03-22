@@ -31,8 +31,13 @@ def select_studentid(userid: str):
 def check_privacy(userid: str):
     connector = connect_to_db()
 
+    studentid = select_studentid(userid)
+
     cursor = connector.cursor()
-    cursor_sql = "SELECT private FROM student_has_lesson"
+    cursor_sql = "SELECT private FROM student_has_lesson WHERE student_idstudent = %s"
+    cursor.execute(cursor_sql, (studentid,))
+
+    return str(cursor.fetchone()).strip("(,)")
 
 class setup_user_stats(commands.Cog):
     def __init__(self, bot):
@@ -60,8 +65,6 @@ class setup_user_stats(commands.Cog):
 
             user_stats_embed.title = str(f"{student_name[0]} {student_name[1]}")
 
-
-
         else:
             select_student_name = connector.cursor()
 
@@ -74,8 +77,6 @@ class setup_user_stats(commands.Cog):
             student_name = list(chain(*select_student_name_result))
 
             user_stats_embed.title = str(f"{student_name[0]} {student_name[1]}")
-
-            print(select_studentid(str(interaction.user.id)))
 
         await interaction.response.send_message(embed=user_stats_embed)
 
