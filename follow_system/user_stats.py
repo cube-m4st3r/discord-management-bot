@@ -37,7 +37,14 @@ def check_privacy(userid: str):
     cursor_sql = "SELECT private FROM student_has_lesson WHERE student_idstudent = %s"
     cursor.execute(cursor_sql, (studentid,))
 
-    return str(cursor.fetchone()).strip("(,)")
+    cursor_output = str(cursor.fetchone()).strip("(,)")
+
+    if cursor_output == "1":
+        bool_value = True
+    else:
+        bool_value = False
+
+    return bool_value
 
 class setup_user_stats(commands.Cog):
     def __init__(self, bot):
@@ -52,6 +59,8 @@ class setup_user_stats(commands.Cog):
 
         connector = connect_to_db()
 
+        userid = ""
+
         if member:
             select_student_name = connector.cursor()
 
@@ -64,6 +73,12 @@ class setup_user_stats(commands.Cog):
             student_name = list(chain(*select_student_name_result))
 
             user_stats_embed.title = str(f"{student_name[0]} {student_name[1]}")
+
+            if check_privacy(str(member.id)) == False:
+                print(check_privacy(str(member.id)))
+                await interaction.response.send_message(embed=user_stats_embed)
+            else:
+                await interaction.response.send_message("User profile is set to private!")
 
         else:
             select_student_name = connector.cursor()
@@ -78,7 +93,12 @@ class setup_user_stats(commands.Cog):
 
             user_stats_embed.title = str(f"{student_name[0]} {student_name[1]}")
 
-        await interaction.response.send_message(embed=user_stats_embed)
+            if check_privacy(str(interaction.user.id)) == False:
+                await interaction.response.send_message(embed=user_stats_embed)
+            else:
+                await interaction.response.send_message(embed=user_stats_embed, ephemeral=True)
+
+
 
         #await interaction.response.send_message(view=user_statsView(interaction))
 
