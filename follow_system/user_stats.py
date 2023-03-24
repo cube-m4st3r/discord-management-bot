@@ -46,6 +46,19 @@ def check_privacy(userid: str):
 
     return bool_value
 
+class FollowMenuButton(discord.ui.Button):
+    def __init__(self, text, buttonStyle, mode):
+        super().__init__(label=text, style=buttonStyle)
+        self.mode = mode
+
+    async def callback(self, interaction: discord.Interaction):
+        interaction.response.defer()
+
+class FollowMenuView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.add_item(FollowMenuButton("Folgen", discord.ButtonStyle.primary, 0))
+
 class setup_user_stats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -97,8 +110,6 @@ class setup_user_stats(commands.Cog):
                 await interaction.response.send_message(embed=user_stats_embed)
             else:
                 await interaction.response.send_message(embed=user_stats_embed, ephemeral=True)
-
-
 
         #await interaction.response.send_message(view=user_statsView(interaction))
 
