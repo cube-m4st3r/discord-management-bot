@@ -1,39 +1,35 @@
 import discord
 from discord.ext import tasks, commands
-
+import database
 import os
 from dotenv import load_dotenv
-
-import mysql.connector
-
-class Client(commands.Bot):
-    load_dotenv("settings.env")
-
-    async def on_ready(self):
-
-        print("Bot is ready to go!")
-
-        mydb = mysql.connector.connect(
-            host=os.getenv("DB.HOST"),
-            user=os.getenv("DB.USER"),
-            password=os.getenv("DB.PW"),
-            database=os.getenv("DB"),
-            port=os.getenv("DB.PORT")
-        )
-
-        await self.load_extension("cogs.messages")
-        await self.load_extension("cogs.grade_overview")
-        await self.load_extension("cogs.stop_willow_project")
-        await self.load_extension("follow_system.user_stats")
-        await self.tree.sync()
-
-        await self.change_presence(status=discord.Status.dnd, activity=discord.Game(" with Documents"))
-
-    async def on_message(self, message):
-
-        if message.author == self.user:
-            return
+import asyncio
 
 intents = discord.Intents.all()
-client = Client(command_prefix="!", intents=intents)
-client.run(os.getenv('TOKEN'))
+client = commands.Bot(command_prefix="!", intents=intents)
+
+
+async def load_cogs():
+    for fileName in os.listdir('./cogs'):
+        if fileName.endswith('.py'):
+            await client.load_extension(f'cogs.{fileName[:-3]}')
+
+async def load_follow_system():
+    for fileName in os.listdir('./cogs/follow_system'):
+        if fileName.endswith('.py'):
+            await client.load_extension(f'cogs.follow_system.{fileName[:-3]}')
+
+load_dotenv("settings.env")
+
+print("Bot is ready to go!")
+
+
+
+async def main():
+    await load_cogs()
+    await load_follow_system()
+    await database.init_database()
+    await client.start(os.getenv("TOKEN"))
+    await client.change_presence(status=discord.Status.dnd, activity=discord.Game(" with Documents"))
+
+asyncio.run(main())
