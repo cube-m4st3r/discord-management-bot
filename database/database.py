@@ -4,6 +4,8 @@ from mysql.connector.cursor_cext import CMySQLCursor
 import os
 from itertools import chain
 
+import database.database
+
 cursor: MySQLCursor | CMySQLCursor = NotImplemented
 mydb = None
 
@@ -26,6 +28,24 @@ async def init_database():
         print("Database connection successful")
     else:
         print("Database connection failed")
+
+def get_user_by_ID(userID):
+    return userID
+
+def get_grade_list_from_userID(userID):
+    sql = "SELECT idlesson, lesson_name, grade FROM lesson l JOIN student_has_lesson shl ON l.idlesson = shl.lesson_idlesson,\
+          discord_user d JOIN student s ON d.iddiscord_user = s.discord_user_iddiscord_user WHERE s.idstudent = shl.student_idstudent AND d.iddiscord_user = %s"
+    val = userID
+    cursor.execute(sql, val)
+
+    result = cursor.fetchall()
+    gradesList = []
+    for i in result:
+        gradesList.append(i)
+    subject_grades = [f"{x[0]}: {x[1]}" for x in gradesList]
+
+    return subject_grades
+
 
 def select_student_id(userid: str):
     sql = "SELECT idstudent FROM student WHERE discord_user_iddiscord_user = %s"
@@ -55,3 +75,4 @@ def check_privacy(userid: str):
         bool_value = False
 
     return bool_value
+
