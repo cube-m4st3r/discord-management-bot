@@ -1,34 +1,38 @@
+import platform
+import time
+
 import discord
+from discord import app_commands
 from discord.ext import tasks, commands
-import database
+from database import database
 import os
 from dotenv import load_dotenv
 import asyncio
 import logging
+from colorama import Back, Fore, Style
+class Client(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix=commands.when_mentioned_or('.'), intents=discord.Intents().all())
+    async def load_cogs(self):
+        for fileName in os.listdir('./cogs'):
+            if fileName.endswith('.py'):
+                await self.load_extension(f'cogs.{fileName[:-3]}')
 
-intents = discord.Intents.all()
-client = commands.Bot(command_prefix="!", intents=intents)
+    async def load_follow_system(self):
+        for fileName in os.listdir('./cogs/follow_system'):
+            if fileName.endswith('.py'):
+                await self.load_extension(f'cogs.follow_system.{fileName[:-3]}')
 
+    load_dotenv("settings.env")
+    async def on_ready(self):
+        prfx = (Back.BLACK + Fore.GREEN + time.strftime("%H:%M:%S UTC", time.gmtime()) + Back.RESET + Fore.WHITE + Style.BRIGHT)
+        print(prfx + " Logged in as " + Fore.YELLOW + self.user.name)
+        print(prfx + " Bot ID " + Fore.YELLOW + str(self.user.id))
+        print(prfx + " Discord Version " + Fore.YELLOW + discord.__version__)
+        print(prfx + " Python Version " + Fore.YELLOW + str(platform.python_version()))
+        synced = await self.tree.sync()
+        print(prfx + " Slash CMDs Synced " + Fore.YELLOW + str(len(synced)) + " Commands")
+        await database.init_database()
 
-async def load_cogs():
-    for fileName in os.listdir('./cogs'):
-        if fileName.endswith('.py'):
-            await client.load_extension(f'cogs.{fileName[:-3]}')
-
-async def load_follow_system():
-    for fileName in os.listdir('./cogs/follow_system'):
-        if fileName.endswith('.py'):
-            await client.load_extension(f'cogs.follow_system.{fileName[:-3]}')
-
-load_dotenv("settings.env")
-
-logging.debug("Now logging...")
-
-async def main():
-    await load_cogs()
-    await load_follow_system()
-    await database.init_database()
-    await client.start(os.getenv("TOKEN"))
-
-
-asyncio.run(main())
+client = Client()
+client.run(os.getenv("TOKEN"))

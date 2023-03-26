@@ -4,8 +4,6 @@ from mysql.connector.cursor_cext import CMySQLCursor
 import os
 from itertools import chain
 
-import database.database
-
 cursor: MySQLCursor | CMySQLCursor = NotImplemented
 mydb = None
 

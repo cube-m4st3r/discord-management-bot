@@ -21,7 +21,7 @@ class user_stats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="user_stats", description="Statistiken eines Nutzers anzeigen")
+    @app_commands.command(name="user_stats", description="Statistiken eines Nutzers anzeigen V1.0")
     async def user_stats(self, interaction: discord.Interaction, member: discord.Member=None):
 
         user_stats_embed = discord.Embed()
@@ -45,6 +45,10 @@ class user_stats(commands.Cog):
                 await interaction.response.send_message(embed=user_stats_embed)
             else:
                 await interaction.response.send_message(embed=user_stats_embed, ephemeral=True)
+
+    @app_commands.command(name="test_try", description="testing is fun!")
+    async def test(self, interaction: discord.Interaction):
+        print("Test")
 
 async def setup(bot):
     await bot.add_cog(user_stats(bot))
