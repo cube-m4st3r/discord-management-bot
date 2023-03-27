@@ -18,16 +18,15 @@ class Client(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=commands.when_mentioned_or('.'), intents=discord.Intents().all())
 
-    async def load_cogs(self):
+    async def setup_hook(self):
         for fileName in os.listdir('./cogs'):
             if fileName.endswith('.py'):
                 await self.load_extension(f'cogs.{fileName[:-3]}')
-        await self.tree.sync(guild=my_guild)
 
-    async def load_follow_system(self):
         for fileName in os.listdir('./cogs/follow_system'):
             if fileName.endswith('.py'):
                 await self.load_extension(f'cogs.follow_system.{fileName[:-3]}')
+
         await self.tree.sync(guild=my_guild)
 
     async def on_ready(self):
@@ -38,11 +37,9 @@ class Client(commands.Bot):
         print(f"{prfx} Discord Version: {Fore.YELLOW + discord.__version__}")
         print(f"{prfx} Python Version: {Fore.YELLOW + str(platform.python_version())}")
         self.tree.copy_global_to(guild=discord.Object(id=1076193627778326671))
-        print(f"{prfx} Slash CMDs Synced: {Fore.YELLOW + str(len(await self.tree.fetch_commands()))} Commands")
+        #print(f"{prfx} Slash CMDs Synced: {Fore.YELLOW + str(len(self.tree.get_commands(guild=my_guild)))} Commands")
         print(f"{prfx} Connected to: {Fore.YELLOW + str(len(self.guilds))} Guilds")
         await database.init_database()
-
-
 
 client = Client()
 client.run(os.getenv("TOKEN"))
