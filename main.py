@@ -12,7 +12,7 @@ from colorama import Back, Fore, Style
 
 load_dotenv("settings.env")
 
-my_guild = discord.Object(id=1076193627778326671)
+MY_GUILD = discord.Object(id=1076193627778326671)
 
 class Client(commands.Bot):
     def __init__(self):
@@ -27,18 +27,16 @@ class Client(commands.Bot):
             if fileName.endswith('.py'):
                 await self.load_extension(f'cogs.follow_system.{fileName[:-3]}')
 
-        await self.tree.sync(guild=my_guild)
+        await self.tree.sync(guild=MY_GUILD)
 
     async def on_ready(self):
         prfx = (Back.BLACK + Fore.GREEN + time.strftime("%H:%M:%S UTC", time.gmtime()) + Back.RESET + Fore.WHITE + Style.BRIGHT)
         print(f"{prfx} Logged in as {Fore.YELLOW + self.user.name}")
-        await client.change_presence(status=discord.Status.dnd, activity=discord.Game(name="with Documents"))
         print(f"{prfx} Bot ID: {Fore.YELLOW + str(self.user.id)}")
         print(f"{prfx} Discord Version: {Fore.YELLOW + discord.__version__}")
         print(f"{prfx} Python Version: {Fore.YELLOW + str(platform.python_version())}")
-        self.tree.copy_global_to(guild=discord.Object(id=1076193627778326671))
-        #print(f"{prfx} Slash CMDs Synced: {Fore.YELLOW + str(len(self.tree.get_commands(guild=my_guild)))} Commands")
         print(f"{prfx} Connected to: {Fore.YELLOW + str(len(self.guilds))} Guilds")
+        await client.change_presence(status=discord.Status.dnd, activity=discord.Game(name="with Documents"))
         await database.init_database()
 
 client = Client()
