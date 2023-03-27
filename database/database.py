@@ -25,9 +25,9 @@ async def init_database():
 
     # Check if the connection is stable
     if mydb.is_connected():
-        print("Database connection successful")
+        return True
     else:
-        print("Database connection failed")
+        return False
 
 def get_user_by_ID(userID):
     return userID
