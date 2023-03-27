@@ -39,10 +39,9 @@ def get_grade_list_from_userID(userID):
     result = cursor.fetchall()
     gradesList = []
     for i in result:
-        gradesList.append(i)
-    subject_grades = [f"{x[0]}: {x[1]}" for x in gradesList]
+        gradesList.append(User_lesson_grade(i[0], i[1], i[2]))
 
-    return subject_grades
+    return gradesList
 
 
 def select_student_id(userid: str):
@@ -73,4 +72,5 @@ def check_privacy(userid: str):
         bool_value = False
 
     return bool_value
-
+    
+    
