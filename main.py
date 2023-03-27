@@ -37,7 +37,7 @@ class Client(commands.Bot):
         print(f"{prfx} Discord Version: {Fore.YELLOW + discord.__version__}")
         print(f"{prfx} Python Version: {Fore.YELLOW + str(platform.python_version())}")
         self.tree.copy_global_to(guild=discord.Object(id=1076193627778326671))
-        #print(f"{prfx} Slash CMDs Synced: {Fore.YELLOW + str(len(self.tree.get_commands(guild=my_guild)))} Commands")
+        print(f"{prfx} Slash CMDs Synced: {Fore.YELLOW + str(len(await self.tree.fetch_commands(guild=my_guild)))} Commands")
         print(f"{prfx} Connected to: {Fore.YELLOW + str(len(self.guilds))} Guilds")
         await database.init_database()
 
