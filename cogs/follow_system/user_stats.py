@@ -1,6 +1,9 @@
+import os
+
 import discord
 from discord import app_commands
 from discord.ext import commands
+
 from database import database as db
 
 
@@ -18,7 +21,7 @@ class FollowMenuView(discord.ui.View):
         self.add_item(FollowMenuButton("Folgen", discord.ButtonStyle.primary, 0))
 
 class user_stats(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @app_commands.command(name="user_stats", description="Statistiken eines Nutzers anzeigen V1.0")
@@ -50,5 +53,5 @@ class user_stats(commands.Cog):
     async def test(self, interaction: discord.Interaction):
         print("Test")
 
-async def setup(bot):
-    await bot.add_cog(user_stats(bot))
+async def setup(bot:commands.Bot) -> None:
+    await bot.add_cog(user_stats(bot), guild=discord.Object(id=1076193627778326671))
