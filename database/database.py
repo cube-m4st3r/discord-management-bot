@@ -4,6 +4,8 @@ from mysql.connector.cursor_cext import CMySQLCursor
 import os
 from itertools import chain
 
+from classes.user_lesson_rating import User_lesson_grade
+
 cursor: MySQLCursor | CMySQLCursor = NotImplemented
 mydb = None
 
