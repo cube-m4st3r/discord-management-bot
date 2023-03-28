@@ -24,7 +24,7 @@ class user_stats(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="user_stats", description="Statistiken eines Nutzers anzeigen V1.0")
+    @app_commands.command(name="user_stats", description="Statistiken eines Nutzers anzeigen")
     async def user_stats(self, interaction: discord.Interaction, member: discord.Member=None):
 
         user_stats_embed = discord.Embed()
@@ -50,8 +50,11 @@ class user_stats(commands.Cog):
                 await interaction.response.send_message(embed=user_stats_embed, ephemeral=True)
 
     @app_commands.command(name="test_try", description="testing is fun!")
-    async def test(self, interaction: discord.Interaction):
-        print("Test")
+    @app_commands.choices(choices=[
+        app_commands.Choice(name="TestChoice", value="testchoice")
+    ])
+    async def test(self, interaction: discord.Interaction, choices: app_commands.Choice[str]):
+        input = choices.value
 
 async def setup(bot:commands.Bot) -> None:
-    await bot.add_cog(user_stats(bot), guild=discord.Object(id=1076193627778326671))
+    await bot.add_cog(user_stats(bot), guild=discord.Object(id=os.getenv("GUILD-ID")))
