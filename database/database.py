@@ -29,10 +29,6 @@ async def init_database():
         return False
 
 
-def get_user_by_id(userid):
-    return userid
-
-
 def get_grade_list_from_userid(userid):
     sql = "SELECT idlesson, lesson_name, grade FROM lesson l JOIN student_has_lesson shl ON l.idlesson = shl.lesson_idlesson,\
           discord_user d JOIN student s ON d.iddiscord_user = s.discord_user_iddiscord_user WHERE s.idstudent = shl.student_idstudent AND d.iddiscord_user = %s"
@@ -62,3 +58,27 @@ def select_student_name(memberid: str):
     res = cursor.fetchall()
     name = list(chain(*res))
     return name
+
+def list_teachers():
+    sql = "SELECT form_of_address, name FROM teacher"
+    cursor.execute(sql)
+
+    list_teachers = cursor.fetchall()
+
+    return list_teachers
+
+
+def discord_user_insert(userid, username, userdiscriminator):
+    sql = "INSERT INTO discord_user VALUES(%s, %s, %s)"
+    val = userid, username, userdiscriminator
+    cursor.execute(sql, val)
+
+    mydb.commit()
+
+
+def user_student_insert(firstname, lastname, userid):
+    sql = "INSERT INTO student VALUES(NULL, %s, %s, %s)"
+    val = firstname, lastname, userid
+    cursor.execute()
+
+    mydb.commit()

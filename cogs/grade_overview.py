@@ -5,6 +5,9 @@ from discord.ext import commands
 import mysql.connector
 import os
 
+import database.database as db
+
+
 class RegisterMenuButton(discord.ui.Button):
     def __init__(self, text, buttonStyle, mode):
         super().__init__(label=text, style=buttonStyle)
@@ -36,29 +39,8 @@ class RegisterUserModal(discord.ui.Modal):
                                      placeholder="Bitte Nachnamen eintragen..", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
-        mydb = mysql.connector.connect(
-            host=os.getenv("DB.HOST"),
-            user=os.getenv("DB.USER"),
-            password=os.getenv("DB.PW"),
-            database=os.getenv("DB"),
-            port=os.getenv("DB.PORT")
-        )
-
-        user_discord_insert = mydb.cursor()
-
-        user_discord_insert_sql = "INSERT INTO discord_user VALUES(%s, %s, %s)"
-        user_discord_insert_val = (str(interaction.user.id), interaction.user.name, interaction.user.discriminator)
-        user_discord_insert.execute(user_discord_insert_sql, user_discord_insert_val)
-
-        mydb.commit()
-
-        user_student_insert = mydb.cursor()
-
-        user_student_insert_sql = "INSERT INTO student VALUES(NULL, %s, %s, %s)"
-        user_student_insert_val = (self.first_name.value, self.last_name.value, str(interaction.user.id))
-        user_student_insert.execute(user_student_insert_sql, user_student_insert_val)
-
-        mydb.commit()
+        db.discord_user_insert(interaction.user.id, interaction.user.name, interaction.user.discriminator)
+        db.user_student_insert(self.first_name.value, self.last_name.value, interaction.user.id)
 
         await interaction.response.send_message(
             f'Du wurdest erfolgreich als: "{self.first_name.value} {self.last_name.value}",  registriert!',
@@ -139,22 +121,7 @@ class SelectTeacherMenu(discord.ui.Select):
         super().__init__(placeholder="Wähle einen Lehrer aus.")
         self.lesson_name = lesson_name
 
-        mydb = mysql.connector.connect(
-            host=os.getenv("DB.HOST"),
-            user=os.getenv("DB.USER"),
-            password=os.getenv("DB.PW"),
-            database=os.getenv("DB"),
-            port=os.getenv("DB.PORT")
-        )
-
-        list_teachers = mydb.cursor()
-
-        list_teachers_sql = "SELECT form_of_address, name FROM teacher"
-        list_teachers.execute(list_teachers_sql)
-
-        list_teachers_result = list_teachers.fetchall()
-
-        for form_of_address, name in list_teachers_result:
+        for form_of_address, name in database.list_teachers():
             self.add_option(label=str(f"{form_of_address} {name}"))
 
     async def callback(self, interaction: discord.Interaction):
@@ -344,8 +311,6 @@ class grade_overview(commands.Cog):
                 )
                 grades.clear()
         lessons.clear()
-
-        check_if_private = mydb.cursor()
 
         await interaction.response.send_message(embed=grade_overview_embed)
 
