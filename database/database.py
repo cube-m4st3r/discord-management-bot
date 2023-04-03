@@ -9,9 +9,9 @@ from classes.user_lesson_rating import User_lesson_grade
 cursor: MySQLCursor | CMySQLCursor = NotImplemented
 mydb = None
 
+
 async def init_database():
-    global mydb # declare mydb as global
-    # Connect to the database
+    global mydb
     mydb = mysql.connector.connect(
         host=os.getenv("DB.HOST"),
         user=os.getenv("DB.USER"),
@@ -23,27 +23,28 @@ async def init_database():
     global cursor
     cursor = mydb.cursor()
 
-    # Check if the connection is stable
     if mydb.is_connected():
         return True
     else:
         return False
 
-def get_user_by_ID(userID):
-    return userID
 
-def get_grade_list_from_userID(userID):
+def get_user_by_id(userid):
+    return userid
+
+
+def get_grade_list_from_userid(userid):
     sql = "SELECT idlesson, lesson_name, grade FROM lesson l JOIN student_has_lesson shl ON l.idlesson = shl.lesson_idlesson,\
           discord_user d JOIN student s ON d.iddiscord_user = s.discord_user_iddiscord_user WHERE s.idstudent = shl.student_idstudent AND d.iddiscord_user = %s"
-    val = userID
+    val = userid
     cursor.execute(sql, val)
 
     result = cursor.fetchall()
-    gradesList = []
+    gradeslist = []
     for i in result:
-        gradesList.append(User_lesson_grade(i[0], i[1], i[2]))
+        gradeslist.append(User_lesson_grade(i[0], i[1], i[2]))
 
-    return gradesList
+    return gradeslist
 
 
 def select_student_id(userid: str):
@@ -51,6 +52,7 @@ def select_student_id(userid: str):
     val = (userid,)
     cursor.execute(sql, val)
     return str(cursor.fetchone()).strip("(,)")
+
 
 def select_student_name(memberid: str):
     sql = "SELECT first_name, last_name FROM student s \
@@ -60,5 +62,3 @@ def select_student_name(memberid: str):
     res = cursor.fetchall()
     name = list(chain(*res))
     return name
-    
-    
