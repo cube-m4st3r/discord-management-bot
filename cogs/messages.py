@@ -22,27 +22,5 @@ class Messages(commands.Cog):
             if delete_counter == number:
                 break
 
-    @app_commands.command(name="test_insert", description="Test insert to database")
-    @app_commands.checks.has_role("Leiter")
-    async def testinsert(self, interaction: discord.Interaction, insert_value: str, member: discord.Member=None):
-
-        mydb = mysql.connector.connect(
-            host=os.getenv("DB.HOST"),
-            user=os.getenv("DB.USER"),
-            password=os.getenv("DB.PW"),
-            database=os.getenv("DB"),
-            port=os.getenv("DB.PORT")
-        )
-
-        mycursor = mydb.cursor()
-
-        sql = "INSERT INTO student VALUES(%s, %s, %s)"
-        val = ((int("2")), "TEST", "TEST")
-        mycursor.execute(sql, val)
-
-        mydb.commit()
-
-        await interaction.response.send_message(str(mycursor.rowcount) + " rows inserted")
-
 async def setup(bot):
     await bot.add_cog(Messages(bot))
