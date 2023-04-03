@@ -386,5 +386,5 @@ class grade_overview(commands.Cog):
         await interaction.response.send_message(view=SelectTeacherView(name))
 
 
-async def setup(bot):
-    await bot.add_cog(grade_overview(bot))
+async def setup(bot) -> None:
+    await bot.add_cog(grade_overview(bot), guild=discord.Object(id=1076193627778326671))
