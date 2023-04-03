@@ -29,10 +29,6 @@ class Client(commands.Bot):
             if fileName.endswith('.py'):
                 await self.load_extension(f'cogs.{fileName[:-3]}')
 
-        for fileName in os.listdir('./cogs/follow_system'):
-            if fileName.endswith('.py'):
-                await self.load_extension(f'cogs.follow_system.{fileName[:-3]}')
-
         await self.tree.sync(guild=my_guild)
 
     async def on_ready(self):
