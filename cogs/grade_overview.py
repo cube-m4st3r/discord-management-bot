@@ -347,17 +347,7 @@ class grade_overview(commands.Cog):
 
         check_if_private = mydb.cursor()
 
-        check_if_private_sql = "SELECT private FROM student_has_lesson shl JOIN student s ON shl.student_idstudent = s.idstudent JOIN discord_user d ON d.iddiscord_user = s.discord_user_iddiscord_user WHERE d.iddiscord_user = %s"
-        check_if_private.execute(check_if_private_sql, (str(interaction.user.id),))
-
-        check_if_private_result = check_if_private.fetchone()
-
-        res = int(str(check_if_private_result).strip("['(,)']"))
-
-        if res == 0:
-            await interaction.response.send_message(embed=grade_overview_embed)
-        else:
-            await interaction.response.send_message(embed=grade_overview_embed, ephemeral=True)
+        await interaction.response.send_message(embed=grade_overview_embed)
 
     @app_commands.command(name="lehrer_eintragen", description="Lehrer eintragen")
     @app_commands.checks.has_role("Leiter")
