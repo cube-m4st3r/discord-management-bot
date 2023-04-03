@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `MET11`.`student` (
   INDEX `fk_student_discord_user_idx` (`discord_user_iddiscord_user` ASC),
   CONSTRAINT `fk_student_discord_user`
     FOREIGN KEY (`discord_user_iddiscord_user`)
-    REFERENCES `TEST_MET11`.`discord_user` (`iddiscord_user`)
+    REFERENCES `MET11`.`discord_user` (`iddiscord_user`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

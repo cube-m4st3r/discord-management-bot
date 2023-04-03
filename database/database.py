@@ -29,25 +29,11 @@ async def init_database():
         return False
 
 
-def get_grade_list_from_userid(userid):
-    sql = "SELECT idlesson, lesson_name, grade FROM lesson l JOIN student_has_lesson shl ON l.idlesson = shl.lesson_idlesson,\
-          discord_user d JOIN student s ON d.iddiscord_user = s.discord_user_iddiscord_user WHERE s.idstudent = shl.student_idstudent AND d.iddiscord_user = %s"
-    val = userid
-    cursor.execute(sql, val)
-
-    result = cursor.fetchall()
-    gradeslist = []
-    for i in result:
-        gradeslist.append(User_lesson_grade(i[0], i[1], i[2]))
-
-    return gradeslist
-
-
 def select_student_id(userid: str):
-    sql = "SELECT idstudent FROM student WHERE discord_user_iddiscord_user = %s"
+    sql = "SELECT idstudent FROM student st JOIN discord_user d ON st.discord_user_iddiscord_user = d.iddiscord_user WHERE d.iddiscord_user = %s"
     val = (userid,)
     cursor.execute(sql, val)
-    return str(cursor.fetchone()).strip("(,)")
+    return cursor.fetchone()
 
 
 def select_student_name(memberid: str):
@@ -58,14 +44,6 @@ def select_student_name(memberid: str):
     res = cursor.fetchall()
     name = list(chain(*res))
     return name
-
-def list_teachers():
-    sql = "SELECT form_of_address, name FROM teacher"
-    cursor.execute(sql)
-
-    list_teachers = cursor.fetchall()
-
-    return list_teachers
 
 
 def discord_user_insert(userid, username, userdiscriminator):
@@ -79,6 +57,57 @@ def discord_user_insert(userid, username, userdiscriminator):
 def user_student_insert(firstname, lastname, userid):
     sql = "INSERT INTO student VALUES(NULL, %s, %s, %s)"
     val = firstname, lastname, userid
-    cursor.execute()
+    cursor.execute(sql, val)
+
+    mydb.commit()
+
+
+def select_teacherid(form_of_address, name):
+    sql = "SELECT idteacher FROM teacher WHERE form_of_address = %s AND name = %s"
+    val = form_of_address, name
+    cursor.execute(sql, val)
+    return cursor.fetchall()
+
+
+def list_teachers():
+    sql = "SELECT form_of_address, name FROM teacher"
+    cursor.execute(sql)
+
+    list_teachers = cursor.fetchall()
+
+    return list_teachers
+
+
+def insert_teacher(form_of_address, name):
+    sql = "INSERT INTO teacher VALUES(null, %s, %s)"
+    val = form_of_address, name
+    cursor.execute(sql, val)
+    mydb.commit()
+
+
+def select_lessonid(input):
+    sql = "SELECT idlesson FROM lesson WHERE lesson_name = %s"
+    cursor.execute(sql, input)
+    return cursor.fetchall()
+
+
+def insert_lesson(teacherid, name):
+    sql = "INSERT INTO lesson VALUES(null, %s, %s)"
+    val = name, teacherid
+    cursor.execute(sql, val)
+
+    mydb.commit()
+
+
+def select_teacher_lesson():
+    sql = "SELECT form_of_address, name, lesson_name FROM teacher, lesson WHERE teacher.idteacher = lesson.teacher_idteacher ORDER BY lesson_name"
+    cursor.execute(sql)
+    return cursor.fetchall()
+
+
+def insert_shl(studentid, lessonid, grade):
+    sql = "INSERT INTO student_has_lesson VALUES(null, %s, %s, %s, 1)"
+    val = studentid, lessonid, grade
+    cursor.execute(sql, val)
 
     mydb.commit()

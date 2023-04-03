@@ -51,68 +51,20 @@ class SelectLessonMenu(discord.ui.Select):
         super().__init__(placeholder="Wähle ein Lernfeld aus", max_values=1, min_values=1)
         self.grade = grade
 
-        mydb = mysql.connector.connect(
-            host=os.getenv("DB.HOST"),
-            user=os.getenv("DB.USER"),
-            password=os.getenv("DB.PW"),
-            database=os.getenv("DB"),
-            port=os.getenv("DB.PORT")
-        )
-
-        select_teachers = mydb.cursor()
-
-        select_teachers_sql = "SELECT form_of_address, name, lesson_name FROM teacher, lesson WHERE teacher.idteacher = lesson.teacher_idteacher ORDER BY lesson_name"
-        select_teachers.execute(select_teachers_sql)
-
-        select_teachers_result = select_teachers.fetchall()
-
-        for form_of_address, name, lesson in select_teachers_result:
+        for form_of_address, name, lesson in db.select_teacher_lesson():
             teacher = form_of_address + " " + name
             lesson = lesson
             self.add_option(label=lesson, description=teacher)
 
     async def callback(self, interaction: discord.Interaction):
 
-        mydb = mysql.connector.connect(
-            host=os.getenv("DB.HOST"),
-            user=os.getenv("DB.USER"),
-            password=os.getenv("DB.PW"),
-            database=os.getenv("DB"),
-            port=os.getenv("DB.PORT")
-        )
-
         for a in self.values:
-
-            select_lesson_id = mydb.cursor()
-
-            select_lesson_id_sql = "SELECT idlesson FROM lesson WHERE lesson_name = %s"
-            select_lesson_id.execute(select_lesson_id_sql, (a,))
-
-            select_lesson_id_result = select_lesson_id.fetchall()
-
-            for b in select_lesson_id_result:
-
+            for b in db.select_lessonid(a):
                 id_lesson = str(b).strip('(,)')
-
-                select_student_id = mydb.cursor()
-
-                select_student_id_sql = "SELECT idstudent FROM student st JOIN discord_user d ON st.discord_user_iddiscord_user = d.iddiscord_user WHERE d.iddiscord_user = %s"
-                select_student_id_val = str(interaction.user.id)
-                select_student_id.execute(select_student_id_sql, (select_student_id_val,))
-
-                select_student_id_result = select_student_id.fetchall()
-
-                for c in select_student_id_result:
+                for c in db.select_student_id():
                     id_student = str(c).strip('(,)')
 
-                    insert_into_shl = mydb.cursor()
-
-                    # shl = student_has_lesson
-                    insert_into_shl_sql = "INSERT INTO student_has_lesson VALUES(null, %s, %s, %s, 1)"
-                    insert_into_shl_val = (id_student, id_lesson, self.grade)
-                    insert_into_shl.execute(insert_into_shl_sql, insert_into_shl_val)
-
-                    mydb.commit()
+                    db.insert_shl(id_student, id_lesson, self.grade)
 
                     await interaction.response.send_message(f"Die Note: {str(self.grade)} wurde in {a} eingetragen!", delete_after=5, ephemeral=True)
 
@@ -121,39 +73,16 @@ class SelectTeacherMenu(discord.ui.Select):
         super().__init__(placeholder="Wähle einen Lehrer aus.")
         self.lesson_name = lesson_name
 
-        for form_of_address, name in database.list_teachers():
+        for form_of_address, name in db.list_teachers():
             self.add_option(label=str(f"{form_of_address} {name}"))
 
     async def callback(self, interaction: discord.Interaction):
 
-        mydb = mysql.connector.connect(
-            host=os.getenv("DB.HOST"),
-            user=os.getenv("DB.USER"),
-            password=os.getenv("DB.PW"),
-            database=os.getenv("DB"),
-            port=os.getenv("DB.PORT")
-        )
+        form_of_address, name = self.values[0].split(' ', 1)
 
-        teacher_form_of_address, teacher_name = self.values[0].split(' ', 1)
+        for IDTEACHER in db.select_teacherid(form_of_address, name):
 
-        select_teacher_id = mydb.cursor()
-
-        select_teacher_id_sql = "SELECT idteacher FROM teacher WHERE form_of_address = %s AND name = %s"
-        select_teacher_id_val = (teacher_form_of_address, teacher_name)
-        select_teacher_id.execute(select_teacher_id_sql, select_teacher_id_val)
-
-        select_teacher_id_result = select_teacher_id.fetchall()
-
-        for IDTEACHER in select_teacher_id_result:
-
-            insert_lesson = mydb.cursor()
-
-            insert_lesson_sql = "INSERT INTO lesson VALUES(null, %s, %s)"
-            insert_lesson_val = (int(str(IDTEACHER).strip("(,)")), self.lesson_name)
-
-            insert_lesson.execute(insert_lesson_sql, insert_lesson_val)
-
-            mydb.commit()
+            db.insert_lesson(int(str(IDTEACHER).strip("(,)")), self.lesson_name)
 
             await interaction.message.edit(content=f"Das Lernfeld: {self.lesson_name} wurde erfolgreich dem Lehrer: {self.values[0]} zugewiesen.", view=None)
 
@@ -316,23 +245,11 @@ class grade_overview(commands.Cog):
 
     @app_commands.command(name="lehrer_eintragen", description="Lehrer eintragen")
     @app_commands.checks.has_role("Leiter")
-    async def insert_teacher(self, form_of_address: str, name: str):
+    async def insert_teacher(self, interaction: discord.Interaction, anrede: str, name: str):
 
-        mydb = mysql.connector.connect(
-            host=os.getenv("DB.HOST"),
-            user=os.getenv("DB.USER"),
-            password=os.getenv("DB.PW"),
-            database=os.getenv("DB"),
-            port=os.getenv("DB.PORT")
-        )
-
-        teacher_insert = mydb.cursor()
-
-        teacher_insert_sql = "INSERT INTO teacher VALUES(null, %s, %s)"
-        teacher_insert_val = (form_of_address, name)
-        teacher_insert.execute(teacher_insert_sql, teacher_insert_val)
-
-        mydb.commit()
+        db.insert_teacher(anrede, name)
+        
+        await interaction.response.send_message("Der Lehrer wurde erfolgreich eingetragen!")
 
     @app_commands.command(name="lernfeld_eintragen", description="Lernfeld eintragen")
     @app_commands.checks.has_role("Leiter")
