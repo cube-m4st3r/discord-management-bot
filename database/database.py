@@ -60,19 +60,5 @@ def select_student_name(memberid: str):
     res = cursor.fetchall()
     name = list(chain(*res))
     return name
-
-def check_privacy(userid: str):
-    studentid = select_student_id(userid)
-    sql = "SELECT private FROM student_has_lesson WHERE student_idstudent = %s"
-    val = studentid
-    cursor.execute(sql, (val,))
-    res = str(cursor.fetchone()).strip("(,)")
-
-    if res == "1":
-        bool_value = True
-    else:
-        bool_value = False
-
-    return bool_value
     
     
