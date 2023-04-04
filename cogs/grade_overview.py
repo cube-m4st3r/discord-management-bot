@@ -127,15 +127,6 @@ class grade_overview(commands.Cog):
     @app_commands.command(name="noten_übersicht", description="Notenübersicht anzeigen")
     @app_commands.checks.has_role("MET 11")
     async def show_grade_overview(self, interaction: discord.Interaction):
-
-        mydb = mysql.connector.connect(
-            host=os.getenv("DB.HOST"),
-            user=os.getenv("DB.USER"),
-            password=os.getenv("DB.PW"),
-            database=os.getenv("DB"),
-            port=os.getenv("DB.PORT")
-        )
-
         user = interaction.user
 
         grade_overview_embed = discord.Embed(title="Notenübersicht")
@@ -144,13 +135,7 @@ class grade_overview(commands.Cog):
         grade_overview_embed.set_author(name=user.name, icon_url=user.display_avatar.url)
         grade_overview_embed.set_footer(text=(f"Angefragt von: " + interaction.user.name))
 
-        select_lesson = mydb.cursor()
-
-        select_lesson_sql = "SELECT lesson_name FROM lesson l JOIN student_has_lesson shl ON l.idlesson = shl.lesson_idlesson JOIN student s ON s.idStudent = shl.student_idstudent JOIN discord_user d ON d.iddiscord_user = s.discord_user_iddiscord_user WHERE d.iddiscord_user = %s"
-        select_lesson_val = str(interaction.user.id)
-        select_lesson.execute(select_lesson_sql, (select_lesson_val,))
-
-        select_lesson_result = select_lesson.fetchall()  # returns a list
+        select_lesson_result = db.select_lesson(user.id)
 
         lessons = []
 
@@ -161,23 +146,9 @@ class grade_overview(commands.Cog):
             lesson = str(a).strip("'(,)'")
 
             if lesson not in lessons:
-
                 lessons.append(lesson)
-
-                select_lesson_id = mydb.cursor()
-
-                select_lesson_id_sql = "SELECT idlesson FROM lesson WHERE lesson_name = %s"
-                select_lesson_id.execute(select_lesson_id_sql, (lesson,))
-
-                for aa in select_lesson_id:
-
-                    select_grades = mydb.cursor()
-
-                    select_grades_sql = "SELECT grade FROM lesson l JOIN student_has_lesson shl ON l.idlesson = shl.lesson_idlesson JOIN student s ON s.idStudent = shl.student_idstudent JOIN discord_user d ON d.iddiscord_user = s.discord_user_iddiscord_user WHERE d.iddiscord_user = %s AND l.idlesson = %s"
-                    select_grades_val = (str(interaction.user.id), int(str(aa).strip("(,)")))
-                    select_grades.execute(select_grades_sql, select_grades_val)
-
-                    for b in select_grades:
+                for aa in db.select_lessonid(lesson):
+                    for b in db.select_grades(user.id, aa):
                         grade = str(b).strip("['(,)']")
 
                         grades.append(grade)

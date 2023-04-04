@@ -97,6 +97,14 @@ def select_lessonid(input):
     return cursor.fetchall()
 
 
+def select_lesson(userid):
+    sql = "SELECT lesson_name FROM lesson l JOIN student_has_lesson shl ON l.idlesson = shl.lesson_idlesson JOIN \
+            student s ON s.idStudent = shl.student_idstudent JOIN discord_user d ON d.iddiscord_user = s.discord_user_iddiscord_user WHERE d.iddiscord_user = %s"
+    val = userid
+    cursor.execute(sql, (val,))
+    return cursor.fetchall()
+
+
 def insert_lesson(teacherid, name):
     sql = "INSERT INTO lesson VALUES(null, %s, %s)"
     val = name, teacherid
@@ -117,3 +125,10 @@ def insert_shl(studentid, lessonid, grade):
     cursor.execute(sql, val)
 
     mydb.commit()
+
+
+def select_grades(userid, lessonid):
+    sql = "SELECT grade FROM lesson l JOIN student_has_lesson shl ON l.idlesson = shl.lesson_idlesson JOIN student \
+            s ON s.idStudent = shl.student_idstudent JOIN discord_user d ON d.iddiscord_user = s.discord_user_iddiscord_user WHERE d.iddiscord_user = %s AND l.idlesson = %s"
+    val = userid, lessonid
+    cursor.execute(sql, val)
