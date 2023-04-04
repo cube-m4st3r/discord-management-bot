@@ -39,8 +39,8 @@ class RegisterUserModal(discord.ui.Modal):
                                      placeholder="Bitte Nachnamen eintragen..", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
-        db.discord_user_insert(interaction.user.id, interaction.user.name, interaction.user.discriminator)
         db.user_student_insert(self.first_name.value, self.last_name.value, interaction.user.id)
+        db.discord_user_insert(interaction.user.id, interaction.user.name, interaction.user.discriminator)
 
         await interaction.response.send_message(
             f'Du wurdest erfolgreich als: "{self.first_name.value} {self.last_name.value}",  registriert!',
@@ -63,9 +63,7 @@ class SelectLessonMenu(discord.ui.Select):
                 id_lesson = str(b).strip('(,)')
                 for c in db.select_student_id():
                     id_student = str(c).strip('(,)')
-
                     db.insert_shl(id_student, id_lesson, self.grade)
-
                     await interaction.response.send_message(f"Die Note: {str(self.grade)} wurde in {a} eingetragen!", delete_after=5, ephemeral=True)
 
 class SelectTeacherMenu(discord.ui.Select):
@@ -83,7 +81,6 @@ class SelectTeacherMenu(discord.ui.Select):
         for IDTEACHER in db.select_teacherid(form_of_address, name):
 
             db.insert_lesson(int(str(IDTEACHER).strip("(,)")), self.lesson_name)
-
             await interaction.message.edit(content=f"Das Lernfeld: {self.lesson_name} wurde erfolgreich dem Lehrer: {self.values[0]} zugewiesen.", view=None)
 
 class SelectTeacherView(discord.ui.View):
@@ -105,25 +102,11 @@ class grade_overview(commands.Cog):
     @app_commands.checks.has_role("MET 11")
     async def register_student(self, interaction: discord.Interaction):
 
-        mydb = mysql.connector.connect(
-            host=os.getenv("DB.HOST"),
-            user=os.getenv("DB.USER"),
-            password=os.getenv("DB.PW"),
-            database=os.getenv("DB"),
-            port=os.getenv("DB.PORT")
-        )
-
-        check_user = mydb.cursor()
-        check_user_sql = "SELECT iddiscord_user FROM discord_user WHERE iddiscord_user = %s"
-        check_user.execute(check_user_sql, (str(interaction.user.id),))
-
-        if not check_user:
+        if not db.check_user(interaction.user.id):
             await interaction.response.send_message(content="*Diese Nachricht wird in 15 Sekunden gelöscht*",
                                                     view=RegisterMenuView(), ephemeral=True, delete_after=15)
         else:
             await interaction.response.send_message(content="Du bist bereits registriert!", ephemeral=True, delete_after=5)
-
-
 
 
     @app_commands.command(name="note_eintragen", description="Note eintragen")
@@ -131,23 +114,7 @@ class grade_overview(commands.Cog):
     async def insert_grade(self, interaction: discord.Interaction, note: int):
 
         if note <= 6:
-
-            mydb = mysql.connector.connect(
-                host=os.getenv("DB.HOST"),
-                user=os.getenv("DB.USER"),
-                password=os.getenv("DB.PW"),
-                database=os.getenv("DB"),
-                port=os.getenv("DB.PORT")
-            )
-
-            mycursor = mydb.cursor()
-
-            sql = "SELECT iddiscord_user FROM discord_user WHERE iddiscord_user = %s"
-            val = str(interaction.user.id)
-
-            mycursor.execute(sql, (val,))  # (val,) tuple
-            myresult = mycursor.fetchall()
-            if not myresult:
+            if not db.check_user(str(interaction.user.id)):
                 await interaction.response.send_message(
                     "Das System konnte dich nicht finden, bist du nicht registriert? \n Wenn du dich registrieren möchtest, dann klicke auf den Button!",
                     view=RegisterMenuView(), ephemeral=True, delete_after=15)
@@ -248,7 +215,7 @@ class grade_overview(commands.Cog):
     async def insert_teacher(self, interaction: discord.Interaction, anrede: str, name: str):
 
         db.insert_teacher(anrede, name)
-        
+
         await interaction.response.send_message("Der Lehrer wurde erfolgreich eingetragen!")
 
     @app_commands.command(name="lernfeld_eintragen", description="Lernfeld eintragen")

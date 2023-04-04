@@ -21,7 +21,7 @@ async def init_database():
     )
 
     global cursor
-    cursor = mydb.cursor()
+    cursor = mydb.cursor(buffered=True)
 
     if mydb.is_connected():
         return True
@@ -52,6 +52,12 @@ def discord_user_insert(userid, username, userdiscriminator):
     cursor.execute(sql, val)
 
     mydb.commit()
+
+
+def check_user(userid):
+    sql = "SELECT iddiscord_user FROM discord_user WHERE iddiscord_user = %s"
+    val = (userid,)
+    cursor.execute(sql, val)
 
 
 def user_student_insert(firstname, lastname, userid):
