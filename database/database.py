@@ -92,7 +92,7 @@ def insert_teacher(form_of_address, name):
 
 def select_lessonid(input):
     sql = "SELECT idlesson FROM lesson WHERE lesson_name = %s"
-    cursor.execute(sql, input)
+    cursor.execute(sql, (input,))
     return cursor.fetchall()
 
 

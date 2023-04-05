@@ -114,7 +114,7 @@ class grade_overview(commands.Cog):
     async def insert_grade(self, interaction: discord.Interaction, note: int):
 
         if note <= 6:
-            if not db.check_user(str(interaction.user.id)):
+            if db.check_user(str(interaction.user.id)):
                 await interaction.response.send_message(
                     "Das System konnte dich nicht finden, bist du nicht registriert? \n Wenn du dich registrieren möchtest, dann klicke auf den Button!",
                     view=RegisterMenuView(), ephemeral=True, delete_after=15)
