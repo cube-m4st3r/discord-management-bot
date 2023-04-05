@@ -39,8 +39,8 @@ class RegisterUserModal(discord.ui.Modal):
                                      placeholder="Bitte Nachnamen eintragen..", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
-        db.user_student_insert(self.first_name.value, self.last_name.value, interaction.user.id)
         db.discord_user_insert(interaction.user.id, interaction.user.name, interaction.user.discriminator)
+        db.user_student_insert(self.first_name.value, self.last_name.value, interaction.user.id)
 
         await interaction.response.send_message(
             f'Du wurdest erfolgreich als: "{self.first_name.value} {self.last_name.value}",  registriert!',

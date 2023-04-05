@@ -50,7 +50,6 @@ def discord_user_insert(userid, username, userdiscriminator):
     sql = "INSERT INTO discord_user VALUES(%s, %s, %s)"
     val = userid, username, userdiscriminator
     cursor.execute(sql, val)
-
     mydb.commit()
 
 
@@ -62,7 +61,7 @@ def check_user(userid):
 
 def user_student_insert(firstname, lastname, userid):
     sql = "INSERT INTO student VALUES(NULL, %s, %s, %s)"
-    val = firstname, lastname, userid
+    val = userid, firstname, lastname
     cursor.execute(sql, val)
 
     mydb.commit()
