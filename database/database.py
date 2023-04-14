@@ -119,7 +119,7 @@ def select_teacher_lesson():
 
 
 def insert_shl(studentid, lessonid, grade):
-    sql = "INSERT INTO student_has_lesson VALUES(null, %s, %s, %s, 1)"
+    sql = "INSERT INTO student_has_lesson VALUES(null, %s, %s, %s)"
     val = studentid, lessonid, grade
     cursor.execute(sql, val)
 
@@ -131,3 +131,4 @@ def select_grades(userid, lessonid):
             s ON s.idStudent = shl.student_idstudent JOIN discord_user d ON d.iddiscord_user = s.discord_user_iddiscord_user WHERE d.iddiscord_user = %s AND l.idlesson = %s"
     val = userid, lessonid
     cursor.execute(sql, val)
+    return cursor.fetchall()
