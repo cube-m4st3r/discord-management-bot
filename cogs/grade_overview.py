@@ -39,8 +39,8 @@ class RegisterUserModal(discord.ui.Modal):
                                      placeholder="Bitte Nachnamen eintragen..", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
-        db.user_student_insert(self.first_name.value, self.last_name.value, interaction.user.id)
         db.discord_user_insert(interaction.user.id, interaction.user.name, interaction.user.discriminator)
+        db.user_student_insert(self.first_name.value, self.last_name.value, interaction.user.id)
 
         await interaction.response.send_message(
             f'Du wurdest erfolgreich als: "{self.first_name.value} {self.last_name.value}",  registriert!',
@@ -61,10 +61,11 @@ class SelectLessonMenu(discord.ui.Select):
         for a in self.values:
             for b in db.select_lessonid(a):
                 id_lesson = str(b).strip('(,)')
-                for c in db.select_student_id():
+                for c in db.select_student_id(str(interaction.user.id)):
                     id_student = str(c).strip('(,)')
                     db.insert_shl(id_student, id_lesson, self.grade)
                     await interaction.response.send_message(f"Die Note: {str(self.grade)} wurde in {a} eingetragen!", delete_after=5, ephemeral=True)
+
 
 class SelectTeacherMenu(discord.ui.Select):
     def __init__(self, lesson_name: str):
@@ -114,7 +115,7 @@ class grade_overview(commands.Cog):
     async def insert_grade(self, interaction: discord.Interaction, note: int):
 
         if note <= 6:
-            if not db.check_user(str(interaction.user.id)):
+            if db.check_user(str(interaction.user.id)):
                 await interaction.response.send_message(
                     "Das System konnte dich nicht finden, bist du nicht registriert? \n Wenn du dich registrieren möchtest, dann klicke auf den Button!",
                     view=RegisterMenuView(), ephemeral=True, delete_after=15)
@@ -148,7 +149,8 @@ class grade_overview(commands.Cog):
             if lesson not in lessons:
                 lessons.append(lesson)
                 for aa in db.select_lessonid(lesson):
-                    for b in db.select_grades(user.id, aa):
+                    lessonid = str(aa).strip("['(,)']")
+                    for b in db.select_grades(user.id, lessonid):
                         grade = str(b).strip("['(,)']")
 
                         grades.append(grade)

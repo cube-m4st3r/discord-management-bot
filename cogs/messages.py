@@ -19,5 +19,6 @@ class Messages(commands.Cog):
             if delete_counter == number:
                 break
 
+
 async def setup(bot):
     await bot.add_cog(Messages(bot))

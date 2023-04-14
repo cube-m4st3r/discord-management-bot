@@ -36,6 +36,8 @@ DROP TABLE IF EXISTS `MET11`.`student` ;
 CREATE TABLE IF NOT EXISTS `MET11`.`student` (
   `idstudent` INT NOT NULL AUTO_INCREMENT,
   `discord_user_iddiscord_user` VARCHAR(45) NOT NULL,
+  `first_name` VARCHAR(45) NOT NULL,
+  `last_name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`idstudent`),
   INDEX `fk_student_discord_user_idx` (`discord_user_iddiscord_user` ASC),
   CONSTRAINT `fk_student_discord_user`
