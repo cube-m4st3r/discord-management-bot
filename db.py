@@ -96,7 +96,7 @@ def get_idaddress_with_idperson(idPerson):
 # check if address exists
 def check_address_exists(address):
     if __check_if_exists(table="address", column="idAddress", value=address.get_id()):
-        __select_data(table="address", column_data="idLocation")
+        __select_data(table="address", column_data="idLocation", column_condition="idAddress", condition=address.get_id())
 
 
 
