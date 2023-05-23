@@ -1,0 +1,12 @@
+{
+  "token": "MTA2MzE1NTA5OTMyMjU2NDczOQ.GE91O1.0CwzLkml-_O_9ARWT7LUvrbk6Q2c0gvyWaxhoM",
+  "host": "192.168.0.24",
+  "user": "root",
+  "password": "root",
+  "port": "5000",
+  "database": "met11",
+  "hub-server-guild-id": 1076193627778326671,
+  "developer-ids": [
+    348781333839085569
+  ]
+}
