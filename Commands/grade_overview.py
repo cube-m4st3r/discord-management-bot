@@ -9,10 +9,11 @@ class Test(commands.Cog):
     @app_commands.command(name="test", description="test")
     @app_commands.checks.has_role("MET 11")
     async def insert_grade(self, interaction: discord.Interaction):
-        student = Student(3)
-        print(student.get_first_name())
-        print(student.get_last_name())
-        print(student.get_address().get_location_name())
+        student = Student(2)
+        print(student.get_address().get_location().get_name())
+        #print(student.get_address().get_location())
+        #print(student.get_address().get_postal_code())
+        #print(student.get_address().get_location().get_name())
 
 
 async def setup(bot) -> None:

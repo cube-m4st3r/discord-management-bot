@@ -7,6 +7,7 @@ import db
 from Classes.address import Address
 from Classes.location import Location
 from Classes.person import Person
+from Classes.postal_code import Postal_code
 from Classes.user import User
 
 
@@ -47,7 +48,6 @@ def does_user_exist(idUser):
 
 
 def get_person_with_idperson(idPerson):
-    print(idPerson)
     sql = f"SELECT idPerson, first_name, last_name, email FROM person WHERE idPerson={idPerson}"
     cursor.execute(sql)
     return cursor.fetchone()
@@ -82,7 +82,7 @@ def load_address_of_person(idPerson):
 
 
 def get_address_with_idaddress(idAddress):
-    sql = f"SELECT a.idAddress, l.name, pc.code FROM location l, postal_code pc, address a WHERE idAddress={idAddress}"
+    sql = f"SELECT a.idAddress, l.idLocation, pc.idPostal_code FROM location l, postal_code pc, address a WHERE idAddress={idAddress}"
     cursor.execute(sql)
     return cursor.fetchone()
 
@@ -96,7 +96,9 @@ def get_idaddress_with_idperson(idPerson):
 # check if address exists
 def check_address_exists(address):
     if __check_if_exists(table="address", column="idAddress", value=address.get_id()):
-        __select_data(table="address", column_data="idLocation", column_condition="idAddress", condition=address.get_id())
+        address.set_location(Location(__select_data(table="address", column_data="idLocation", column_condition="idAddress", condition=address.get_id())))
+        address.set_postal_code(Postal_code(__select_data(table="address", column_data="idPostal_code", column_condition="idAddress", condition=address.get_id())))
+
 
 
 
@@ -109,13 +111,14 @@ def __check_if_exists(table, column, value):
     else:
         return False
 
+
 def get_location_with_id(idLocation):
     sql = f"SELECT idLocation, name FROM location WHERE idLocation={idLocation}"
     cursor.execute(sql)
     return cursor.fetchone()
 
 def get_postal_code_with_id(idPostal_code):
-    sql = f"SELECT idPostal_code, name FROM postal_code WHERE idPostal_code={idPostal_code}"
+    sql = f"SELECT idPostal_code, code FROM postal_code WHERE idPostal_code={idPostal_code}"
     cursor.execute(sql)
     return cursor.fetchone()
 
