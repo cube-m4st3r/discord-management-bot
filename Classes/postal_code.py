@@ -14,7 +14,7 @@ class Postal_code:
         return self.__id
 
     def get_code(self):
-        return self.__name
+        return self.__code
 
     def set_id(self, id):
         self.__id = id

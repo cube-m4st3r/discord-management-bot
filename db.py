@@ -82,7 +82,7 @@ def load_address_of_person(idPerson):
 
 
 def get_address_with_idaddress(idAddress):
-    sql = f"SELECT a.idAddress, l.idLocation, pc.idPostal_code FROM location l, postal_code pc, address a WHERE idAddress={idAddress}"
+    sql = f"SELECT idAddress, street, house_number, idlocation, idpostal_code from address where idAddress={idAddress}"
     cursor.execute(sql)
     return cursor.fetchone()
 
@@ -95,11 +95,26 @@ def get_idaddress_with_idperson(idPerson):
 
 # check if address exists
 def check_address_exists(address):
+    # check location & postal_code if exists
+    # check if the address exists already -> if not, create it within DB
+    # if yes, then set the data for the object and return it
+    # anything below is useless, select_missing_id is strong.
     if __check_if_exists(table="address", column="idAddress", value=address.get_id()):
-        address.set_location(Location(__select_data(table="address", column_data="idLocation", column_condition="idAddress", condition=address.get_id())))
-        address.set_postal_code(Postal_code(__select_data(table="address", column_data="idPostal_code", column_condition="idAddress", condition=address.get_id())))
-
-
+        address.set_street(__select_data(table="address", column_data="street", column_condition="idAddress",
+                                         condition=address.get_id()))
+        address.set_house_number(
+            __select_data(table="address", column_data="house_number", column_condition="idAddress",
+                          condition=address.get_id()))
+        address.set_location(Location(
+            __select_data(table="address", column_data="idLocation", column_condition="idAddress",
+                          condition=address.get_id())))
+        address.set_postal_code(Postal_code(
+            __select_data(table="address", column_data="idPostal_code", column_condition="idAddress",
+                          condition=address.get_id())))
+        return address
+    else:
+        address.set_id(__select_missing_id("address", "idAddress"))
+        return address
 
 
 def __check_if_exists(table, column, value):
@@ -112,10 +127,17 @@ def __check_if_exists(table, column, value):
         return False
 
 
+def __select_missing_id(table, id_value):
+    sql = f"SELECT t1.{id_value} + 1 AS missing_id FROM {table} t1 WHERE NOT EXISTS (SELECT * FROM {table} t2 WHERE t2.{id_value} = t1.{id_value} + 1) LIMIT 1"
+    cursor.execute(sql)
+    return cursor.fetchone()[0]
+
+
 def get_location_with_id(idLocation):
     sql = f"SELECT idLocation, name FROM location WHERE idLocation={idLocation}"
     cursor.execute(sql)
     return cursor.fetchone()
+
 
 def get_postal_code_with_id(idPostal_code):
     sql = f"SELECT idPostal_code, code FROM postal_code WHERE idPostal_code={idPostal_code}"
