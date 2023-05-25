@@ -4,14 +4,16 @@ import time
 
 import discord
 from discord.ext import tasks, commands
-from database import database
+
+import config
+import db
 import os
 from dotenv import load_dotenv
 from colorama import Back, Fore, Style
 
 load_dotenv("settings.env")
 
-my_guild = discord.Object(id=os.getenv("GUILD-ID"))
+my_guild = discord.Object(id=config.botConfig["hub-server-guild-id"])
 
 
 @tasks.loop(minutes=5.0)
@@ -24,12 +26,12 @@ async def update_presence(self):
 
 class Client(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix=commands.when_mentioned_or('.'), intents=discord.Intents().all())
+        super().__init__(command_prefix=commands.when_mentioned_or('!-#&'), intents=discord.Intents().all())
 
     async def setup_hook(self):
-        for fileName in os.listdir('./cogs'):
+        for fileName in os.listdir('Commands'):
             if fileName.endswith('.py'):
-                await self.load_extension(f'cogs.{fileName[:-3]}')
+                await self.load_extension(f'Commands.{fileName[:-3]}')
 
         await self.tree.sync(guild=my_guild)
 
@@ -42,11 +44,11 @@ class Client(commands.Bot):
         self.tree.copy_global_to(guild=discord.Object(id=1076193627778326671))
         print(f"{prfx} Slash CMDs Synced: {Fore.YELLOW + str(len(await self.tree.fetch_commands(guild=my_guild)))} Commands")
         print(f"{prfx} Connected to: {Fore.YELLOW + str(len(self.guilds))} Guilds")
-        if await database.init_database():
+        if await db.init_database():
             print(f"{prfx} Database Connection:{Fore.YELLOW} successful.")
         await update_presence.start(self)
 
 
 if __name__ == '__main__':
     client = Client()
-    client.run(os.getenv("TOKEN"))
+    client.run(config.botConfig["token"])
